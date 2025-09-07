@@ -3,7 +3,8 @@ import { Sparkles, Copy, RefreshCw, Send, Hash, Image, Wand2 } from 'lucide-reac
 import Card from '../components/Card'
 import Button from '../components/Button'
 import { useApp } from '../context/AppContext'
-import { OpenAI } from 'openai'
+import { generateContent, generateHashtags, suggestImages } from '../services/openaiService'
+import toast from 'react-hot-toast'
 
 const ContentGenerator = () => {
   const { addPost } = useApp()
@@ -15,37 +16,32 @@ const ContentGenerator = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [selectedPlatforms, setSelectedPlatforms] = useState(['twitter'])
 
-  // Note: In production, this would be called from a secure backend
-  const generateContent = async () => {
-    if (!prompt.trim()) return
+  const handleGenerateContent = async () => {
+    if (!prompt.trim()) {
+      toast.error('Please enter a prompt to generate content')
+      return
+    }
 
     setIsGenerating(true)
     
     try {
-      // Simulate AI content generation for demo
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      const result = await generateContent({
+        prompt,
+        tone,
+        platform,
+        maxLength: platform === 'twitter' ? 280 : 2000
+      })
       
-      const mockContent = {
-        professional: `Exciting insights from today's ${prompt}! Our latest analysis shows significant growth in engagement across all platforms. This data-driven approach is helping businesses achieve better results. What's your experience with these trends?`,
-        casual: `Just discovered something amazing about ${prompt}! 🔥 Seriously blown away by how this is changing the game. Anyone else seeing these results? Would love to hear your thoughts! 💭`,
-        creative: `✨ Imagine if ${prompt} could transform your entire strategy... Well, it's happening! 🚀 We're witnessing a revolution in how brands connect with their audience. The future is here, and it's beautiful! 🌟`,
-        humorous: `Plot twist: ${prompt} is actually the secret sauce we've all been looking for! 😂 Who knew that the answer was right in front of us this whole time? *mind blown* 🤯 #PlotTwist`
-      }
-
-      const content = mockContent[tone] || mockContent.professional
-      setGeneratedContent(content)
+      setGeneratedContent(result.content)
+      setGeneratedHashtags(result.hashtags)
       
-      // Generate relevant hashtags
-      const hashtags = [
-        '#SocialMedia', '#Marketing', '#AI', '#ContentCreation', 
-        '#DigitalMarketing', '#Innovation', '#Growth', '#Engagement'
-      ].slice(0, Math.floor(Math.random() * 3) + 3)
-      
-      setGeneratedHashtags(hashtags)
+      toast.success('Content generated successfully!')
       
     } catch (error) {
       console.error('Error generating content:', error)
-      setGeneratedContent('Sorry, there was an error generating content. Please try again.')
+      toast.error(error.message)
+      setGeneratedContent('')
+      setGeneratedHashtags([])
     } finally {
       setIsGenerating(false)
     }
@@ -172,7 +168,7 @@ const ContentGenerator = () => {
 
             {/* Generate Button */}
             <Button
-              onClick={generateContent}
+              onClick={handleGenerateContent}
               disabled={!prompt.trim() || isGenerating}
               loading={isGenerating}
               className="w-full"

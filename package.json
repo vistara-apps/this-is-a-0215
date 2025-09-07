@@ -18,7 +18,15 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "date-fns": "^2.29.3",
-    "clsx": "^1.2.1"
+    "clsx": "^1.2.1",
+    "@supabase/supabase-js": "^2.39.0",
+    "@stripe/stripe-js": "^2.4.0",
+    "react-query": "^3.39.3",
+    "react-hook-form": "^7.48.2",
+    "react-hot-toast": "^2.4.1",
+    "axios": "^1.6.2",
+    "js-cookie": "^3.0.5",
+    "react-oauth2-code-pkce": "^1.16.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
